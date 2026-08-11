@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.nitin16100.twa",
+        "sha256_cert_fingerprints": ["32:EA:B4:F3:4B:3C:07:69:4E:D2:F3:43:64:EB:7C:AC:72:18:46:9C:B6:60:DE:FD:DA:F5:37:AC:E6:95:E0:25"]
+      }
+    }]
