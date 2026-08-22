@@ -18,6 +18,10 @@ canvas{display:block;touch-action:none;-webkit-tap-highlight-color:transparent}
 function setSt(m){var el=document.getElementById("st");if(el)el.textContent=m;}
 function showErr(m){var el=document.getElementById("err");el.style.display="block";el.textContent=m;}
 window.addEventListener("error",function(e){showErr("ERROR line "+(e.lineno||"?")+": "+e.message);});
+(function(){try{var h=location.hash.match(/s=([A-Za-z0-9+\/=]+)/);
+if(h){var o=JSON.parse(decodeURIComponent(atob(h[1])));
+for(var k in o)localStorage.setItem("nd_"+k,JSON.stringify(o[k]));
+history.replaceState(null,"",location.pathname+location.search);}}catch(e){}})();
 </script>
 <script>
 "use strict";setSt("engine start");
@@ -2498,6 +2502,47 @@ AudioSys.init();SFX.ui();go("game");
 }
 },true);
 /* ===== FIX END ===== */
+</script>
+<script>
+"use strict";
+/* ===== SAVE SYSTEM v2: progress that survives everything ===== */
+function cookieSet(k,v){try{document.cookie="nd_"+k+"="+encodeURIComponent(JSON.stringify(v))+";max-age=315360000;path=/;SameSite=Lax";}catch(e){}}
+function cookieGet(k){try{var m=document.cookie.match(new RegExp("(?:^|;\\s*)nd_"+k+"=([^;]*)"));return m?JSON.parse(decodeURIComponent(m[1])):null;}catch(e){return null;}}
+(function(){try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);
+if(k&&k.indexOf("nd_")===0)cookieSet(k.slice(3),JSON.parse(localStorage.getItem(k)));}}catch(e){}})();
+var _sSet2=Store.set,_sGet2=Store.get;
+Store.set=function(q,v){_sSet2(q,v);cookieSet(q,v);};
+Store.get=function(q,d){var v=_sGet2(q,null);if(v==null)v=cookieGet(q);return v==null?d:v;};
+window.addEventListener("storage",function(e){try{if(e.key&&e.key.indexOf("nd_")===0){BEST=Store.get("best",0);GEMS=Store.get("gems",0);}}catch(e2){}});
+function saveCode(){var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);
+if(k&&k.indexOf("nd_")===0)o[k.slice(3)]=JSON.parse(localStorage.getItem(k));}}catch(e){}
+return btoa(encodeURIComponent(JSON.stringify(o)));}
+function loadCode(s){try{var o=JSON.parse(decodeURIComponent(atob(s.replace(/\s/g,""))));
+for(var k in o)Store.set(k,o[k]);location.hash="";location.reload();return true;}catch(e){return false;}}
+var _goSV2=go;
+go=function(n){_goSV2(n);
+if(n==="settings"){var P=isPortrait();
+var bw=P?(VIEW_W-40)/2:210,bh=56,by=VIEW_H-(P?140:80);
+var b1={x:VIEW_W/2-bw-8,y:by,w:bw,h:bh},b2={x:VIEW_W/2+8,y:by,w:bw,h:bh};
+var o2=add([fixed(),z(22)]);
+o2.onDraw(function(){card(b1.x,b1.y,b1.w,b1.h,false);card(b2.x,b2.y,b2.w,b2.h,false);
+cx.save();cx.textAlign="center";cx.textBaseline="middle";
+cx.font="bold 15px monospace";cx.fillStyle=col("gold");
+cx.fillText("COPY SAVE CODE",b1.x+b1.w/2,b1.y+20);
+cx.font="10px monospace";cx.fillStyle=col("textSub");
+cx.fillText("any tab / browser",b1.x+b1.w/2,b1.y+38);
+cx.font="bold 15px monospace";cx.fillStyle=col("player");
+cx.fillText("PASTE SAVE CODE",b2.x+b2.w/2,b2.y+20);
+cx.font="10px monospace";cx.fillStyle=col("textSub");
+cx.fillText("restore progress",b2.x+b2.w/2,b2.y+38);
+cx.restore();});
+onMousePress(function(){var p=pointerPos();
+if(p.x>=b1.x&&p.x<=b1.x+b1.w&&p.y>=b1.y&&p.y<=b1.y+b1.h){var c=saveCode();
+try{if(navigator.clipboard)navigator.clipboard.writeText(c);}catch(e){}
+prompt("COPY THIS SAVE CODE (keep it safe):",c);SFX.ui();return;}
+if(p.x>=b2.x&&p.x<=b2.x+b2.w&&p.y>=b2.y&&p.y<=b2.y+b2.h){var s=prompt("PASTE YOUR SAVE CODE:");
+if(s){if(!loadCode(s))alert("Invalid save code.");}SFX.ui();return;}});}};
+/* ===== SAVE v2 END ===== */
 </script>
 </body>
 </html>
